@@ -1,0 +1,59 @@
+---
+title: "특이값 처리"
+author: "김성근"
+date: "2017년 5월 22일"
+output: 
+  html_document: 
+    keep_md: yes
+---
+# 특이값 처리 
+
+## 박스플랏으로 특이값 확인 
+```{r}
+head(mtcars) #연속형 자료만 있음
+boxplot(mtcars)
+```
+
+# 데이터 생성 
+```{r}
+cars1 <- cars[1:30, ]  
+cars_outliers <- data.frame(speed=c(19,19,20,20,20), 
+                            dist=c(190, 186, 210, 220, 218))  
+cars2 <- rbind(cars1, cars_outliers)  
+```
+
+# 원본 및 이상치 추가한 데이터 비교 
+```{r}
+par(mfrow=c(1, 2))
+#원본
+plot(cars2$speed, cars2$dist, xlim=c(0, 28), 
+     ylim=c(0, 230), 
+     main="With Outliers", 
+     xlab="speed", ylab="dist", 
+     pch="*", col="red", cex=2)
+
+
+abline(lm(dist ~ speed, data=cars2), 
+       col="blue", lwd=3, lty=2)
+
+#이상치 추가
+plot(cars1$speed, cars1$dist, 
+     xlim=c(0, 28), ylim=c(0, 230), 
+     xlab="speed", ylab="dist", 
+     pch="*", col="red", cex=2)
+
+abline(lm(dist ~ speed, data=cars1), 
+       col="blue", lwd=3, lty=2)
+```
+
+## 한개변수의 이상치 추출
+```{r}
+boxplot.stats(cars2$dist)$out
+boxplot(cars2$dist)
+```
+
+## 여러변수의 이상치 추출
+```{r}
+library(psych)
+outlier(iris[,1:3])
+```

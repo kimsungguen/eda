@@ -1,0 +1,46 @@
+---
+title: "데이터변환"
+author: "김성근"
+date: "2017년 5월 22일"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 데이터변환 및 변수생성
+
+## 데이터 생성
+```{r}
+dt = seq(as.Date("2000/1/1"), as.Date("2003/1/1"), by = "day")
+num = rnorm(1097, 45 ,1)
+day_transform = data.frame(dt,num)
+day_transform = day_transform[-c(10:20),]
+nrow(day_transform)
+head(day_transform)
+```
+
+## 이산형 변수의 변환 (주중/주말 변수)
+```{r}
+day_transform$day = format(day_transform$dt,"%a")
+day_transform[day_transform$day == "토", "day2"] = "주말"
+day_transform[day_transform$day == "일", "day2"] = "주말"
+day_transform[day_transform$day == "월", "day2"] = "평일"
+day_transform[day_transform$day == "화", "day2"] = "평일"
+day_transform[day_transform$day == "수", "day2"] = "평일"
+day_transform[day_transform$day == "목", "day2"] = "평일"
+day_transform[day_transform$day == "금", "day2"] = "평일"
+head(day_transform)
+```
+
+
+## 연속형 변수의 변환 (로그변환) 
+```{r}
+cust.df <- read.csv("http://goo.gl/PmPkaG")
+head(cust.df)
+```
+```{r}
+# 수치변환
+hist(cust.df$distance.to.store)
+hist(log(cust.df$distance.to.store))
+cust.df$log.dist = log(cust.df$distance.to.store)
+```

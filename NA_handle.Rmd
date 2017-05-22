@@ -1,0 +1,110 @@
+---
+title: "NA_handle"
+author: "김성근"
+date: "2017년 5월 22일"
+output: 
+  html_document: 
+    keep_md: yes
+---
+# 결측값 다루기
+
+## 데이터 로딩
+```{r}
+na_handle = read.csv("c:/data/pml-training.csv")
+```
+
+## NA 종류 파악하기 
+```{r}
+str(na_handle[,1:10])
+str(na_handle[,20:30])
+```
+
+
+## 결측정보 코딩 - "",NULL, NA, "#DIV/0!"
+```{r}
+na_handle = read.csv("c:/data/pml-training.csv", 
+                     head = TRUE, 
+                     na.strings = c(NA, "", "#DIV/0!", -999, NULL))
+na_handle = na_handle[,-1]
+```
+
+## 결측현황 시각화
+```{r}
+library(Amelia)
+missmap(na_handle)
+
+library(VIM)
+aggr_plot <- aggr(na_handle, 
+                  numbers=TRUE, 
+                  sortVars=TRUE,
+                  labels=names(na_handle))
+```
+## NA처리하기 
+
+### 아예 완전히 삭제하고 시작하기 
+  - NA합계가 0인 애들만 재할당
+```{r}
+colSums(is.na(na_handle))
+na_zero = na_handle[,colSums(is.na(na_handle)) == 0]
+```
+
+  - 간단한 함수로도 가능
+```{r}
+na_zero2 = complete.cases(na_handle)
+```
+
+## NA가 일정 비율이상있는 경우 삭제하기
+  - NA비율 산출하는 함수를 만들어 각 칼럼의 NA비율산출
+```{r}
+check_missing_value = function(x){sum(is.na(x))/length(x)*100}
+c_name = apply(na_handle, 2, check_missing_value)
+head(c_name, 20)
+```
+  - NA비율이 10%미만인 컬럼만 서브셋팅
+```{r}
+ten_below = na_handle[,c_name <= 10]
+str(ten_below)
+```
+  - 다시 NA현황 확인 
+```{r}
+aggr_plot <- aggr(ten_below, 
+                  numbers=TRUE, 
+                  sortVars=TRUE,
+                  labels=names(na_handle))
+```
+
+## NA채우기 
+  - airquality데이터 NA값 생성하여 삽입
+```{r}
+air <- airquality
+air[4:10,3] <- rep(NA,7)
+air[1:5,4] <- NA
+air <- air[-c(5,6)]
+```
+
+### mice패키지
+  - 다양한 방식으로 NA의 대체값을 찾아 넣어줌
+  - 채워넣기 전 현황
+```{r}
+library(mice)
+aggr_plot <- aggr(air, col=c('navyblue','red'), 
+                  numbers=TRUE, 
+                  sortVars=TRUE, 
+                  labels=names(data))
+```
+
+  - NA 대체함(디폴트는 추정된 평균으로 대체)
+```{r}  
+impute_air = mice(air) #모든 인수 디폴트
+completed_air = complete(impute_air,1)
+```
+
+  - 채워넣은 후
+```{r}
+aggr_plot = aggr(completed_air, col=c('navyblue','red'), 
+                 numbers=TRUE, 
+                 sortVars=TRUE, 
+                 labels=names(data))
+```
+
+#### Amelia패키지도 각종 머신러닝 기법을 활용해 NA를 대체해줌 각자 해볼것 

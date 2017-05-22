@@ -1,0 +1,99 @@
+---
+title: "기술통계량 및 분포"
+author: "김성근"
+date: "2017년 5월 22일"
+output: 
+  html_document: 
+    keep_md: yes
+---
+# 기술통계량 확인
+  - 데이터 로딩
+```{r}
+cust.df <- read.csv("http://goo.gl/PmPkaG")
+str(cust.df)
+```
+
+## 명목척도 
+```{r}
+length(cust.df$email)                                                 
+summary(cust.df$email)                        
+table(cust.df$email) 
+barplot(table(cust.df$email))
+```
+
+## 등간척도 
+```{r}
+summary(cust.df$sat.service) 
+table(cust.df$sat.service) 
+hist(cust.df$sat.service)
+```
+
+## 연속형(등간/비율척도) 척도
+### 대표값 기술통계 
+```{r}
+mean(cust.df$age)
+var(cust.df$age)
+sd(cust.df$age)
+median(cust.df$age) 
+quantile(cust.df$age)
+quantile(cust.df$age, 1/4)
+quantile(cust.df$age, 3/4)
+plot(cust.df$age)
+hist(cust.df$age)
+```
+
+### 단순 기술통계 
+```{r}
+min(cust.df$age)
+max(cust.df$age)
+range(cust.df$age) 
+```
+
+## 분포의 대칭도 
+```{r}
+library(moments)
+skewness(cust.df$age)  # 0보다 작으면 왼쪽 꼬리, 크면 오른쪽 꼬리   
+kurtosis(cust.df$age)  # 3이 정규 분포   
+```
+
+## psycy 패키지를 활용한 기술통계량 확인
+```{r}
+library(psych)
+describe(cust.df)
+```
+
+## 분포의 이해 ####
+  - Bernoulli : 동전의 앞/뒤처럼 이벤트가 0 또는 1밖에 일어나지 않는 분포
+  - Uniform : 주사위처럼 모든 결과에 대한 확률이 동일한 확률분포입니다.
+  - Binomial : 0 또는 1이 나오는 이벤트(각각이 Bernoulli확률을 갖는 이벤트)에 대해 1이 발생활 횟수에 대한 확률입니다.
+  - Gaussian : 우리가 알고 있는 정규분포
+  - Log-normal : 변수의 log 값이 Gaussian을 나타내는 분포
+  - Student’s t-distribution : 정규분포의 다른 형태(우리가 아는 t분포)
+  - https://blog.cloudera.com/blog/2015/12/common-probability-distributions-the-data-scientists-crib-sheet/
+  
+### Bernoulli
+```{r}
+plot(cust.df$email)
+```
+
+### Uniform
+```{r}
+a = runif(100, min=1, max=3) ; plot(a)
+```
+
+### normal
+```{r}
+par(mfrow=c(1,2))
+a = rnorm(500, 20, 5) ; hist(a)
+plot(density(a))
+
+b = rnorm(500, 20, 10) ; hist(b)
+plot(density(b))
+```
+
+
+### 두개분포 겹치기 
+```{r}
+plot(density(a))
+lines(density(b), lty=2)
+```
